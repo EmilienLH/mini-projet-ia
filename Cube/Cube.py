@@ -1,11 +1,6 @@
 import random
 
-# Create the code to implement a cube mathematically : each tile has one unique number et a colour : 
-# {1,2...24} and {red, blue, green, yellow, orange, white}
-# the cube is represented by a a list of 24 tiles
-# each tile is represented by a tuple (number, colour)
-
-# first : create the cube
+# create the cube : 
 
 cube = []
 colors = ["red", "blue", "green", "yellow", "orange", "white"]
@@ -17,7 +12,7 @@ for numbers in numbers :
         color = colors.pop()
     cube.append((numbers, color))
 
-# rotations : 
+# rotations : each rotation have a base function and a rotate function
 
 def base_top(cube) :
     top = cube[:4]
@@ -95,3 +90,94 @@ def rotate_front(cube, angle) :
     elif angle == 180 :
         return base_front(base_front(cube))
     
+def base_right(cube) :
+    top = cube[:4]
+    left = cube[4:8]
+    front = cube[8:12]
+    right = cube[12:16]
+    back = cube[16:20]
+    bottom = cube[20:]
+
+    rotated_top = [top[0], front[1], front[2], top[3]]
+    rotated_left = left
+    rotated_front = [front[0], bottom[1], bottom[2], front[3]]
+    rotated_right = [right[3], right[0], right[1], right[2]]
+    rotated_back = [top[2], back[1], back[2], top[1]]
+    rotated_bottom = [bottom[0], back[3], back[0], bottom[3]]
+    
+    new_cube = rotated_top + rotated_left + rotated_front + rotated_right + rotated_back + rotated_bottom
+    return new_cube
+
+def rotate_right(cube, angle) :
+    if angle == 90 :
+        return base_right(cube)
+    elif angle == -90 :
+        return base_right(base_right(base_right(cube)))
+    elif angle == 180 :
+        return base_right(base_right(cube))
+    
+
+def base_back(cube) :
+    top = cube[:4]
+    left = cube[4:8]
+    front = cube[8:12]
+    right = cube[12:16]
+    back = cube[16:20]
+    bottom = cube[20:]
+
+    rotated_top = [right[1], right[2], top[2], top[3]]
+    rotated_left = [top[1], left[1], left[2], top[0]]
+    rotated_front = front
+    rotated_right = [right[0], bottom[2], bottom[3], right[3]]
+    rotated_back = [back[3], back[0], back[1], back[2]]
+    rotated_bottom = [bottom[0],bottom[1], left[3], left[0]]
+
+    new_cube = rotated_top + rotated_left + rotated_front + rotated_right + rotated_back + rotated_bottom
+    return new_cube
+
+def rotate_back(cube, angle) :
+    if angle == 90 :
+        return base_back(cube)
+    elif angle == -90 :
+        return base_back(base_back(base_back(cube)))
+    elif angle == 180 :
+        return base_back(base_back(cube))
+
+def base_bottom(cube) :
+    top = cube[:4]
+    left = cube[4:8]
+    front = cube[8:12]
+    right = cube[12:16]
+    back = cube[16:20]
+    bottom = cube[20:]
+
+    rotated_top = top
+    rotated_left = [left[0], left[1], back[2], back[3]]
+    rotated_front = [front[0], front[1], left[2], left[3]]
+    rotated_right = [right[0], right[1], front[2], front[3]]
+    rotated_back = [back[0], back[1], right[2], right[3]]
+    rotated_bottom = [bottom[3], bottom[0], bottom[1], bottom[2]]
+
+    new_cube = rotated_top + rotated_left + rotated_front + rotated_right + rotated_back + rotated_bottom
+    return new_cube
+
+def rotate_bottom(cube, angle) :
+    if angle == 90 :
+        return base_bottom(cube)
+    elif angle == -90 :
+        return base_bottom(base_bottom(base_bottom(cube)))
+    elif angle == 180 :
+        return base_bottom(base_bottom(cube))
+
+# random rotations :
+
+def random_rotation(cube, n = 10) :
+    rotations = [rotate_top, rotate_left, rotate_front, rotate_right, rotate_back, rotate_bottom]
+    angles = [90, -90, 180]
+    for i in range(n) :
+        rotation = random.choice(rotations)
+        angle = random.choice(angles)
+        cube = rotation(cube, angle)
+    return cube
+
+print(random_rotation(cube, 10))
