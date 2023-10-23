@@ -25,6 +25,7 @@ def base_top(cube) :
     front = cube[8:12]
     right = cube[12:16]
     back = cube[16:20]
+
     rotated_top = [top[3], top[0], top[1], top[2]]
     rotated_left = [front[0], front[1], left[2], left[3]]
     rotated_front = [right[0], right[1], front[2], front[3]]
@@ -67,5 +68,30 @@ def rotate_left(cube, angle) :
         return base_left(base_left(base_left(cube)))
     elif angle == 180 :
         return base_left(base_left(cube))
-    
 
+def base_front(cube) :
+    top = cube[:4]
+    left = cube[4:8]
+    front = cube[8:12]
+    right = cube[12:16]
+    back = cube[16:20]
+    bottom = cube[20:]
+
+    rotated_top = [top[0], top[1], left[1], left[2]]
+    rotated_left = [left[0], bottom[0], bottom[1], left[3]]
+    rotated_front = [front[3], front[0], front[1], front[2]]
+    rotated_right = [top[3], right[1], right[2], top[2]]
+    rotated_back = back
+    rotated_bottom = [right[3], right[0], bottom[2], bottom[3]]
+
+    new_cube = rotated_top + rotated_left + rotated_front + rotated_right + rotated_back + rotated_bottom
+    return new_cube
+
+def rotate_front(cube, angle) :
+    if angle == 90 :
+        return base_front(cube)
+    elif angle == -90 :
+        return base_front(base_front(base_front(cube)))
+    elif angle == 180 :
+        return base_front(base_front(cube))
+    
