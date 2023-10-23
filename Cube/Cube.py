@@ -181,3 +181,22 @@ def random_rotation(cube, n = 10) :
     return cube
 
 print(random_rotation(cube, 10))
+
+# solve the cube :
+
+def solve(cube) :
+    top = cube[:4]
+    left = cube[4:8]
+    front = cube[8:12]
+    right = cube[12:16]
+    back = cube[16:20]
+    bottom = cube[20:]
+
+    if top[0][1] == top[1][1] == top[2][1] == top[3][1] and left[0][1] == left[1][1] == left[2][1] == left[3][1] and front[0][1] == front[1][1] == front[2][1] == front[3][1] and right[0][1] == right[1][1] == right[2][1] == right[3][1] and back[0][1] == back[1][1] == back[2][1] == back[3][1] and bottom[0][1] == bottom[1][1] == bottom[2][1] == bottom[3][1] :
+        return True
+    else :
+        cube = random_rotation(cube)
+        return solve(cube)
+    
+print(solve(random_rotation(cube)))
+    
