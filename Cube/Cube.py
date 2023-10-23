@@ -182,30 +182,11 @@ def random_rotation(cube, n = 10) :
         cube = rotation(cube, angle)
     return cube
 
-print(random_rotation(cube, 10))
-
 State       = TypeVar('State')
 Description = TypeVar('Description')
 Cost        = TypeVar('Cost')
 Transition  = Tuple[Description, State, Cost]
 Solution    = List[Transition]
-
-
-def solver (transformations:  Callable[[State], List[Transition]],
-            isFinal:          Callable[[State], bool],
-            state:            State) -> List[Solution]:
-    """
-    A very basic backtracking solver.
-
-    :param transformations:  The function that return the successors of a given state.
-    :param isFinal:  The predicate that determines whether a state is a solution.
-    :param state:  A state from which to explore the state graph of the problem.
-    :return:  A list of alternative solutions.
-    """
-    return ([[]] if isFinal(state) else
-            [ [(d, s, c)] + solution
-              for (d, s, c) in transformations(state)
-              for solution in solver(transformations, isFinal, s) ])
 
 def isFinal(state) :
     # a state is final if all the colors on a face are the same
@@ -237,14 +218,34 @@ def transformations(state) :
             ("back", rotate_back(state, 90), 1), ("back", rotate_back(state, -90), 1), ("back", rotate_back(state, 180), 1),
             ("bottom", rotate_bottom(state, 90), 1), ("bottom", rotate_bottom(state, -90), 1), ("bottom", rotate_bottom(state, 180), 1)]
 
+def solver (transformations:  Callable[[State], List[Transition]],
+            isFinal:          Callable[[State], bool],
+            state:            State,
+            d_max:            int) -> List[Solution]:
+    """
+    A basic backtracking solver with a depth limit in order to avoid infinite searches in infinite graphs.
+
+    :param transformations:  The function that return the successors of a given state.
+    :param isFinal:  The predicate that determines whether a state is a solution.
+    :param state:  Some state from which to explore the state graph of the problem.
+    :param d_max:  The maximal authorised search depth.
+    :return:  A list of alternative solutions.
+    """
+    return ([]   if d_max < 0      else
+            [[]] if isFinal(state) else
+            [ [(d, s, c)] + solution
+              for (d, s, c) in transformations(state)
+              for solution in solver(transformations, isFinal, s, d_max - 1) ])
+    
+
 def solve(cube) :
-    return solver(transformations, isFinal, cube)
+    return solver(transformations, isFinal, cube, 30)
 
 def print_solution(solution) :
+    print("solution :")
     # print the solution
     for i in range(len(solution)) :
         print("step", i, ":", solution[i][0], solution[i][2])
         print(solution[i][1])
         print()
 
-print_solution(solve(random_rotation(cube, 10))[0])
