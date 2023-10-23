@@ -1,4 +1,6 @@
 import random
+from typing import TypeVar, Callable, Tuple, List
+
 
 # create the cube : 
 
@@ -181,9 +183,6 @@ def random_rotation(cube, n = 10) :
     return cube
 
 print(random_rotation(cube, 10))
-
-from typing import TypeVar, Callable, Tuple, List
-
 
 State       = TypeVar('State')
 Description = TypeVar('Description')
