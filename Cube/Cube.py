@@ -182,21 +182,70 @@ def random_rotation(cube, n = 10) :
 
 print(random_rotation(cube, 10))
 
-# solve the cube :
+from typing import TypeVar, Callable, Tuple, List
 
-def solve(cube) :
-    top = cube[:4]
-    left = cube[4:8]
-    front = cube[8:12]
-    right = cube[12:16]
-    back = cube[16:20]
-    bottom = cube[20:]
 
-    if top[0][1] == top[1][1] == top[2][1] == top[3][1] and left[0][1] == left[1][1] == left[2][1] == left[3][1] and front[0][1] == front[1][1] == front[2][1] == front[3][1] and right[0][1] == right[1][1] == right[2][1] == right[3][1] and back[0][1] == back[1][1] == back[2][1] == back[3][1] and bottom[0][1] == bottom[1][1] == bottom[2][1] == bottom[3][1] :
+State       = TypeVar('State')
+Description = TypeVar('Description')
+Cost        = TypeVar('Cost')
+Transition  = Tuple[Description, State, Cost]
+Solution    = List[Transition]
+
+
+def solver (transformations:  Callable[[State], List[Transition]],
+            isFinal:          Callable[[State], bool],
+            state:            State) -> List[Solution]:
+    """
+    A very basic backtracking solver.
+
+    :param transformations:  The function that return the successors of a given state.
+    :param isFinal:  The predicate that determines whether a state is a solution.
+    :param state:  A state from which to explore the state graph of the problem.
+    :return:  A list of alternative solutions.
+    """
+    return ([[]] if isFinal(state) else
+            [ [(d, s, c)] + solution
+              for (d, s, c) in transformations(state)
+              for solution in solver(transformations, isFinal, s) ])
+
+def isFinal(state) :
+    # a state is final if all the colors on a face are the same
+    top = state[:4]
+    left = state[4:8]
+    front = state[8:12]
+    right = state[12:16]
+    back = state[16:20]
+    bottom = state[20:]
+
+    top_colors = [color for (number, color) in top]
+    left_colors = [color for (number, color) in left]
+    front_colors = [color for (number, color) in front]
+    right_colors = [color for (number, color) in right]
+    back_colors = [color for (number, color) in back]
+    bottom_colors = [color for (number, color) in bottom]
+
+    if len(set(top_colors)) == 1 and len(set(left_colors)) == 1 and len(set(front_colors)) == 1 and len(set(right_colors)) == 1 and len(set(back_colors)) == 1 and len(set(bottom_colors)) == 1 :
         return True
     else :
-        cube = random_rotation(cube)
-        return solve(cube)
+        return False
     
-print(solve(random_rotation(cube)))
-    
+def transformations(state) :
+    # all the possible rotations
+    return [("top", rotate_top(state, 90), 1), ("top", rotate_top(state, -90), 1), ("top", rotate_top(state, 180), 1),
+            ("left", rotate_left(state, 90), 1), ("left", rotate_left(state, -90), 1), ("left", rotate_left(state, 180), 1),
+            ("front", rotate_front(state, 90), 1), ("front", rotate_front(state, -90), 1), ("front", rotate_front(state, 180), 1),
+            ("right", rotate_right(state, 90), 1), ("right", rotate_right(state, -90), 1), ("right", rotate_right(state, 180), 1),
+            ("back", rotate_back(state, 90), 1), ("back", rotate_back(state, -90), 1), ("back", rotate_back(state, 180), 1),
+            ("bottom", rotate_bottom(state, 90), 1), ("bottom", rotate_bottom(state, -90), 1), ("bottom", rotate_bottom(state, 180), 1)]
+
+def solve(cube) :
+    return solver(transformations, isFinal, cube)
+
+def print_solution(solution) :
+    # print the solution
+    for i in range(len(solution)) :
+        print("step", i, ":", solution[i][0], solution[i][2])
+        print(solution[i][1])
+        print()
+
+print_solution(solve(random_rotation(cube, 10))[0])
