@@ -5,7 +5,7 @@ from typing import TypeVar, Callable, Tuple, List
 # create the cube : 
 
 cube = []
-colors = ["red", "blue", "green", "yellow", "orange", "white"]
+colors = ["yellow", "blue", "red", "green", "orange", "white"]
 numbers = [i for i in range(1, 25)]
 
 for numbers in numbers :
@@ -125,7 +125,7 @@ def base_back(cube) :
     front = cube[8:12]
     right = cube[12:16]
     back = cube[16:20]
-    bottom = cube[20:]
+    bottom = cube[20:]  
 
     rotated_top = [right[1], right[2], top[2], top[3]]
     rotated_left = [top[1], left[1], left[2], top[0]]
@@ -173,12 +173,14 @@ def rotate_bottom(cube, angle) :
 
 # random rotations :
 
-def random_rotation(cube, n = 10) :
+def random_rotation(cube, n =6) :
     rotations = [rotate_top, rotate_left, rotate_front, rotate_right, rotate_back, rotate_bottom]
     angles = [90, -90, 180]
     for i in range(n) :
         rotation = random.choice(rotations)
+        print(rotation)
         angle = random.choice(angles)
+        print(angle)
         cube = rotation(cube, angle)
     return cube
 
@@ -211,12 +213,12 @@ def isFinal(state) :
     
 def transformations(state) :
     # all the possible rotations
-    return [("top", rotate_top(state, 90), 1), ("top", rotate_top(state, -90), 1), ("top", rotate_top(state, 180), 1),
-            ("left", rotate_left(state, 90), 1), ("left", rotate_left(state, -90), 1), ("left", rotate_left(state, 180), 1),
-            ("front", rotate_front(state, 90), 1), ("front", rotate_front(state, -90), 1), ("front", rotate_front(state, 180), 1),
-            ("right", rotate_right(state, 90), 1), ("right", rotate_right(state, -90), 1), ("right", rotate_right(state, 180), 1),
-            ("back", rotate_back(state, 90), 1), ("back", rotate_back(state, -90), 1), ("back", rotate_back(state, 180), 1),
-            ("bottom", rotate_bottom(state, 90), 1), ("bottom", rotate_bottom(state, -90), 1), ("bottom", rotate_bottom(state, 180), 1)]
+    return [("top", rotate_top(state, 90), 1), ("top*", rotate_top(state, -90), 1), ("top**", rotate_top(state, 180), 1),
+            ("left", rotate_left(state, 90), 1), ("left*", rotate_left(state, -90), 1), ("left**", rotate_left(state, 180), 1),
+            ("front", rotate_front(state, 90), 1), ("front*", rotate_front(state, -90), 1), ("front**", rotate_front(state, 180), 1),
+            ("right", rotate_right(state, 90), 1), ("right*", rotate_right(state, -90), 1), ("right**", rotate_right(state, 180), 1),
+            ("back", rotate_back(state, 90), 1), ("back*", rotate_back(state, -90), 1), ("back**", rotate_back(state, 180), 1),
+            ("bottom", rotate_bottom(state, 90), 1), ("bottom*", rotate_bottom(state, -90), 1), ("bottom**", rotate_bottom(state, 180), 1)]
 
 def solver (transformations:  Callable[[State], List[Transition]],
             isFinal:          Callable[[State], bool],
@@ -236,16 +238,45 @@ def solver (transformations:  Callable[[State], List[Transition]],
             [ [(d, s, c)] + solution
               for (d, s, c) in transformations(state)
               for solution in solver(transformations, isFinal, s, d_max - 1) ])
+
+def solver2(transformations, isFinal, state, d_max, path=None):
+    if path is None:
+        path = []  
+
+    if d_max < 0:
+        return None  
+
+    if isFinal(state):
+        return path  
+
+    for (description, next_state, cost) in transformations(state):
+        next_path = path + [(description,)]  
+        result = solver2(transformations, isFinal, next_state, d_max - 1, next_path)
+
+        if result is not None:
+            return result  
+
+    return None  
+
     
 
 def solve(cube) :
-    return solver(transformations, isFinal, cube, 30)
+    return solver2(transformations, isFinal, cube, 8,)
 
-def print_solution(solution) :
+def print_solution(solution):
     print("solution :")
-    # print the solution
-    for i in range(len(solution)) :
+    # Imprime la solution
+    for i in range(len(solution)):
         print("step", i, ":", solution[i][0], solution[i][2])
         print(solution[i][1])
         print()
+
+print(cube)
+
+random_cube = random_rotation(cube)
+
+print(random_cube)
+
+
+print(solve(random_cube))
 
