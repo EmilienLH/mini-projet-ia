@@ -251,11 +251,12 @@ def transformations(state, path=None):
     last_dir = last_move.split("*")[0]
     last_stars = len(last_move.split("*")) - 1
     possible_moves = []
-    for move in all_moves :
+    for move in all_moves:
         dir = move[0].split("*")[0]
         stars = len(move[0].split("*")) - 1
         # Check if the move is the inverse of the last move
-        if dir == last_dir and (last_stars + stars) % 3 == 1: # 0 + 1 = 1, 1 + 0 = 1, 2 + 2 = 1
+        # 0 + 1 = 1, 1 + 0 = 1, 2 + 2 = 1
+        if dir == last_dir and (last_stars + stars) % 3 == 1:
             continue
         # If the move is not useless, add it to the list of possible moves
         possible_moves.append(move)
