@@ -6,7 +6,7 @@ from typing import TypeVar, Callable, Tuple, List, Union
 # Solver_DepthLimit.py is in ../Recursive_Inferences_Engines folder
 
 from Recursive_Inference_Engines.MetaSolver_IteratedDeepening import meta_solver
-import Recursive_Inference_Engines.Solver_BranchAndBound as SBB
+import Recursive_Inference_Engines.Solver_DepthLimit as SDL
 
 # create the cube :
 
@@ -296,9 +296,36 @@ def solver2(transformations, isFinal, state, d_max, path=None):
 
     return None  
 
+def solverIDS (transformations:  Callable[[State], List[Transition]],
+            isFinal:          Callable[[State], bool],
+            d_max:            int,
+            initial:          State) -> List[Solution]:
+    """
+    A solver based on the depth-limit solver but that uses the meta-heuristic of depth-deepening.
+
+    :param transformations:  The function that return the successors of a given state.
+    :param isFinal:  The predicate that determines whether a state is a solution.
+    :param d_max:  The maximal depth at which a solution is to be found.
+    :param initial:  The initial state from which to explore the state graph of the problem.
+    :return:  A list of alternative solutions at some minimal depth up to the maximal depth limit.
+    """
+
+    def curried_solver (d_max:    int,
+                        initial:  State) -> List[Solution]:
+        """
+        Encapsulation of the actual solver in order to use it with the iterated-deepening meta-solver interface.
+        """
+        return SDL.solver(transformations, isFinal, initial, d_max)
+
+    return meta_solver(curried_solver, d_max, initial)
+
+
 
 def solve(cube):
     return solver2(transformations, isFinal, cube, 5)
+
+def solveIDS(cube):
+    return solverIDS(transformations, isFinal, 8, cube)
 
 print(cube)
 
@@ -307,5 +334,6 @@ random_cube = random_rotation(cube)
 print(random_cube)
 
 
-print(solve(random_cube))
+# print(solve(random_cube))
 
+print(solveIDS(random_cube))
