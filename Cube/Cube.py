@@ -202,6 +202,8 @@ def random_rotation(cube, n =6) :
     return cube
 
 
+# solver :
+
 State = TypeVar('State')
 Description = TypeVar('Description')
 Cost = TypeVar('Cost')
@@ -231,14 +233,34 @@ def isFinal(state):
         return False
 
 
-def transformations(state):
+def transformations(state, path=None):
     # all the possible rotations
-    return [("top", rotate_top(state, 90), 1), ("top*", rotate_top(state, -90), 1), ("top**", rotate_top(state, 180), 1),
-            ("left", rotate_left(state, 90), 1), ("left*", rotate_left(state, -90), 1), ("left**", rotate_left(state, 180), 1),
-            ("front", rotate_front(state, 90), 1), ("front*", rotate_front(state, -90), 1), ("front**", rotate_front(state, 180), 1),
-            ("right", rotate_right(state, 90), 1), ("right*", rotate_right(state, -90), 1), ("right**", rotate_right(state, 180), 1),
-            ("back", rotate_back(state, 90), 1), ("back*", rotate_back(state, -90), 1), ("back**", rotate_back(state, 180), 1),
-            ("bottom", rotate_bottom(state, 90), 1), ("bottom*", rotate_bottom(state, -90), 1), ("bottom**", rotate_bottom(state, 180), 1)]
+    all_moves = [("top", rotate_top(state, 90), 1), ("top*", rotate_top(state, -90), 1), ("top**", rotate_top(state, 180), 1),
+                    ("left", rotate_left(state, 90), 1), ("left*", rotate_left(state, -90), 1), ("left**", rotate_left(state, 180), 1),
+                    ("front", rotate_front(state, 90), 1), ("front*", rotate_front(state, -90), 1), ("front**", rotate_front(state, 180), 1),
+                    ("right", rotate_right(state, 90), 1), ("right*", rotate_right(state, -90), 1), ("right**", rotate_right(state, 180), 1),
+                    ("back", rotate_back(state, 90), 1), ("back*", rotate_back(state, -90), 1), ("back**", rotate_back(state, 180), 1),
+                    ("bottom", rotate_bottom(state, 90), 1), ("bottom*", rotate_bottom(state, -90), 1), ("bottom**", rotate_bottom(state, 180), 1)]
+    
+    last_move = None
+    if path is not None and len(path) > 0:
+        last_move = path[-1][0]
+    if last_move is None:
+        return all_moves
+
+    last_dir = last_move.split("*")[0]
+    last_stars = len(last_move.split("*")) - 1
+    possible_moves = []
+    for move in all_moves :
+        dir = move[0].split("*")[0]
+        stars = len(move[0].split("*")) - 1
+        # Check if the move is the inverse of the last move
+        if dir == last_dir and (last_stars + stars) % 3 == 1: # 0 + 1 = 1, 1 + 0 = 1, 2 + 2 = 1
+            continue
+        # If the move is not useless, add it to the list of possible moves
+        possible_moves.append(move)
+
+    return possible_moves
 
 
 def solver(transformations:  Callable[[State], List[Transition]],
@@ -270,7 +292,7 @@ def solver2(transformations, isFinal, state, d_max, path=None):
     if isFinal(state):
         return path  
 
-    for (description, next_state, cost) in transformations(state):
+    for (description, next_state, cost) in transformations(state, path):
         next_path = path + [(description,)]  
         result = solver2(transformations, isFinal, next_state, d_max - 1, next_path)
 
