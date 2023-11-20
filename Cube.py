@@ -1,12 +1,12 @@
 import random
-from typing import TypeVar, Callable, Tuple, List
+from typing import TypeVar, Callable, Tuple, List, Union
 
 
 # MetaSolver_IteratedDeepening.py is in ../Recursive_Inferences_Engines folder
 # Solver_DepthLimit.py is in ../Recursive_Inferences_Engines folder
 
 from Recursive_Inference_Engines.MetaSolver_IteratedDeepening import meta_solver
-import Recursive_Inference_Engines.Solver_DepthLimit as SDL
+import Recursive_Inference_Engines.Solver_BranchAndBound as SBB
 
 # create the cube :
 
@@ -251,18 +251,25 @@ def transformations(state, path=None):
     last_move = None
     if path is not None and len(path) > 0:
         last_move = path[-1][0]
+    
     if last_move is None:
         return all_moves
 
     last_dir = last_move.split("*")[0]
     last_stars = len(last_move.split("*")) - 1
+
     possible_moves = []
     for move in all_moves:
         dir = move[0].split("*")[0]
         stars = len(move[0].split("*")) - 1
+
         # Check if the move is the inverse of the last move
         # 0 + 1 = 1, 1 + 0 = 1, 2 + 2 = 1
         if dir == last_dir and (last_stars + stars) % 3 == 1:
+            continue
+
+        # Check if the move is the same as the last move
+        if dir == last_dir and stars == last_stars:
             continue
         # If the move is not useless, add it to the list of possible moves
         possible_moves.append(move)
@@ -291,16 +298,7 @@ def solver2(transformations, isFinal, state, d_max, path=None):
 
 
 def solve(cube):
-    return solver2(transformations, isFinal, 10, cube)
-
-
-def print_solution(solution):
-    print("solution :")
-    # Imprime la solution
-    for i in range(len(solution)):
-        print("step", i, ":", solution[i][0], solution[i][2])
-        print(solution[i][1])
-        print()
+    return solver2(transformations, isFinal, cube, 5)
 
 print(cube)
 
