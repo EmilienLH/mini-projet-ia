@@ -2,6 +2,12 @@ import random
 from typing import TypeVar, Callable, Tuple, List
 
 
+# MetaSolver_IteratedDeepening.py is in ../Recursive_Inferences_Engines folder
+# Solver_DepthLimit.py is in ../Recursive_Inferences_Engines folder
+
+from Recursive_Inference_Engines.MetaSolver_IteratedDeepening import meta_solver
+import Recursive_Inference_Engines.Solver_DepthLimit as SDL
+
 # create the cube :
 
 cube = []
@@ -264,25 +270,6 @@ def transformations(state, path=None):
     return possible_moves
 
 
-def solver(transformations:  Callable[[State], List[Transition]],
-           isFinal:          Callable[[State], bool],
-           state:            State,
-           d_max:            int) -> List[Solution]:
-    """
-    A basic backtracking solver with a depth limit in order to avoid infinite searches in infinite graphs.
-
-    :param transformations:  The function that return the successors of a given state.
-    :param isFinal:  The predicate that determines whether a state is a solution.
-    :param state:  Some state from which to explore the state graph of the problem.
-    :param d_max:  The maximal authorised search depth.
-    :return:  A list of alternative solutions.
-    """
-    return ([] if d_max < 0 else
-            [[]] if isFinal(state) else
-            [ [(d, s, c)] + solution
-              for (d, s, c) in transformations(state)
-              for solution in solver(transformations, isFinal, s, d_max - 1) ])
-
 def solver2(transformations, isFinal, state, d_max, path=None):
     if path is None:
         path = []  
@@ -302,10 +289,10 @@ def solver2(transformations, isFinal, state, d_max, path=None):
 
     return None  
 
-    
 
-def solve(cube) :
-    return solver2(transformations, isFinal, cube, 8,)
+def solve(cube):
+    return solver2(transformations, isFinal, 10, cube)
+
 
 def print_solution(solution):
     print("solution :")
