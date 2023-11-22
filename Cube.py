@@ -268,7 +268,7 @@ def transformations(state, path=None):
         if dir == last_dir and (last_stars + stars) % 3 == 1:
             continue
 
-        # Check if the move is the same as the last move
+        # Check if the move is the same as the last move : useless, might as well do move** instead
         if dir == last_dir and stars == last_stars:
             continue
         # If the move is not useless, add it to the list of possible moves
@@ -300,29 +300,22 @@ def solverIDS (transformations:  Callable[[State], List[Transition]],
             isFinal:          Callable[[State], bool],
             d_max:            int,
             initial:          State) -> List[Solution]:
-    """
-    A solver based on the depth-limit solver but that uses the meta-heuristic of depth-deepening.
-
-    :param transformations:  The function that return the successors of a given state.
-    :param isFinal:  The predicate that determines whether a state is a solution.
-    :param d_max:  The maximal depth at which a solution is to be found.
-    :param initial:  The initial state from which to explore the state graph of the problem.
-    :return:  A list of alternative solutions at some minimal depth up to the maximal depth limit.
-    """
-
-    def curried_solver (d_max:    int,
-                        initial:  State) -> List[Solution]:
-        """
-        Encapsulation of the actual solver in order to use it with the iterated-deepening meta-solver interface.
-        """
-        return SDL.solver(transformations, isFinal, initial, d_max)
-
-    return meta_solver(curried_solver, d_max, initial)
-
-
+    for depth in range(1, d_max + 1):
+        result = solver2(transformations, isFinal, initial, depth)
+        if result is not None:
+            return result
+        
+def solverIDA(transformations: Callable[[State], List[Transition]],
+              isFinal: Callable[[State], bool],
+              d_max: int,
+              initial: State) -> List[Solution]:
+    for depth in range(1, d_max + 1):
+        result = solver3(transformations, isFinal, initial, depth)
+        if result is not None:
+            return result
 
 def solve(cube):
-    return solver2(transformations, isFinal, cube, 5)
+    return solver2(transformations, isFinal, cube, 7)
 
 def solveIDS(cube):
     return solverIDS(transformations, isFinal, 8, cube)
@@ -335,5 +328,7 @@ print(random_cube)
 
 
 # print(solve(random_cube))
+
+# print(solve3(random_cube))
 
 print(solveIDS(random_cube))
