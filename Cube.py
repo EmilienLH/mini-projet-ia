@@ -196,7 +196,7 @@ def rotate_bottom(cube, angle):
 
 # random rotations :
 
-def random_rotation(cube, n =6) :
+def random_rotation(cube, n =16) :
     rotations = [rotate_top, rotate_left, rotate_front, rotate_right, rotate_back, rotate_bottom]
     angles = [90, -90, 180]
     for i in range(n):
@@ -215,6 +215,53 @@ Description = TypeVar('Description')
 Cost = TypeVar('Cost')
 Transition = Tuple[Description, State, Cost]
 Solution = List[Transition]
+
+
+def etape(state):
+    # a state is final if all the colors on a face are the same
+    top = state[:4]
+    left = state[4:8]
+    front = state[8:12]
+    right = state[12:16]
+    back = state[16:20]
+    bottom = state[20:]
+
+    top_colors = [color for (number, color) in top]
+    left_colors = [color for (number, color) in left]
+    front_colors = [color for (number, color) in front]
+    right_colors = [color for (number, color) in right]
+    back_colors = [color for (number, color) in back]
+    bottom_colors = [color for (number, color) in bottom]
+
+    if len(set(top_colors)) == 1 or len(set(left_colors)) == 1 or len(set(front_colors)) == 1 or len(set(right_colors)) == 1 or len(set(back_colors)) == 1 or len(set(bottom_colors)) == 1:
+        return True
+    else:
+        return False
+
+
+
+
+def etape2(state):
+    # a state is final if all the colors on a face are the same
+    top = state[:4]
+    left = state[4:8]
+    front = state[8:12]
+    right = state[12:16]
+    back = state[16:20]
+    bottom = state[20:]
+
+    top_colors = [color for (number, color) in top]
+    left_colors = [color for (number, color) in left]
+    front_colors = [color for (number, color) in front]
+    right_colors = [color for (number, color) in right]
+    back_colors = [color for (number, color) in back]
+    bottom_colors = [color for (number, color) in bottom]
+
+    if (len(set(top_colors)) == 1 and len(set(bottom_colors)) == 1) or (len(set(left_colors)) == 1 and len(set(right_colors)) == 1) or (len(set(front_colors)) == 1 and len(set(back_colors)) == 1):
+        return True
+    else:
+        return False
+
 
 
 def isFinal(state):
@@ -285,7 +332,7 @@ def solver2(transformations, isFinal, state, d_max, path=None):
         return None  
 
     if isFinal(state):
-        return path  
+        return [path, state]
 
     for (description, next_state, cost) in transformations(state, path):
         next_path = path + [(description,)]  
@@ -296,26 +343,41 @@ def solver2(transformations, isFinal, state, d_max, path=None):
 
     return None  
 
+
 def solverIDS (transformations:  Callable[[State], List[Transition]],
-            isFinal:          Callable[[State], bool],
+            etape:          Callable[[State], bool],
             d_max:            int,
             initial:          State) -> List[Solution]:
     for depth in range(1, d_max + 1):
-        result = solver2(transformations, isFinal, initial, depth)
+        result = solver2(transformations, etape, initial, depth)
         if result is not None:
             return result
         
-def solverIDA(transformations: Callable[[State], List[Transition]],
-              isFinal: Callable[[State], bool],
-              d_max: int,
-              initial: State) -> List[Solution]:
-    for depth in range(1, d_max + 1):
-        result = solver3(transformations, isFinal, initial, depth)
-        if result is not None:
-            return result
 
-def solve(cube):
-    return solver2(transformations, isFinal, cube, 7)
+def solveWithStep(cube):
+    result_etape = solverIDS(transformations, etape2, 8, cube)
+
+    print("ok etape 1")
+    
+    
+    if result_etape is not None:
+        cube_after_etape = result_etape[1]
+        print(cube_after_etape)
+        print("ok etape 1_2")
+
+        result_final = solverIDS(transformations, isFinal, 8, cube_after_etape)
+        print("ok etape 2")
+        
+        if result_final is not None:
+            return result_final
+        else:
+            return None
+    else:
+        return None
+
+
+#def solve(cube):
+   # return solver2(transformations, isFinal, cube, 7)
 
 def solveIDS(cube):
     return solverIDS(transformations, isFinal, 8, cube)
@@ -331,4 +393,4 @@ print(random_cube)
 
 # print(solve3(random_cube))
 
-print(solveIDS(random_cube))
+print(solveWithStep(random_cube)[0]) #alors ca marche ! Mais !!!!! ca rend l'algo encore plus lent j'ai perdu 3H de ma vie bordel 
