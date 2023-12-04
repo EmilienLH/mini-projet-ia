@@ -143,7 +143,7 @@ def base_back(cube):
     front = cube[8:12]
     right = cube[12:16]
     back = cube[16:20]
-    bottom = cube[20:]  
+    bottom = cube[20:]
 
     rotated_top = [right[1], right[2], top[2], top[3]]
     rotated_left = [top[1], left[1], left[2], top[0]]
@@ -196,8 +196,10 @@ def rotate_bottom(cube, angle):
 
 # random rotations :
 
-def random_rotation(cube, n =16) :
-    rotations = [rotate_top, rotate_left, rotate_front, rotate_right, rotate_back, rotate_bottom]
+
+def random_rotation(cube, n=16):
+    rotations = [rotate_top, rotate_left, rotate_front,
+                 rotate_right, rotate_back, rotate_bottom]
     angles = [90, -90, 180]
     for i in range(n):
         rotation = random.choice(rotations)
@@ -217,32 +219,18 @@ Transition = Tuple[Description, State, Cost]
 Solution = List[Transition]
 
 
+def all_same(items):
+    return all(x == items[0] for x in items)
+
+
 def etape(state):
-    # a state is final if all the colors on a face are the same
-    top = state[:4]
-    left = state[4:8]
-    front = state[8:12]
-    right = state[12:16]
-    back = state[16:20]
-    bottom = state[20:]
-
-    top_colors = [color for (number, color) in top]
-    left_colors = [color for (number, color) in left]
-    front_colors = [color for (number, color) in front]
-    right_colors = [color for (number, color) in right]
-    back_colors = [color for (number, color) in back]
-    bottom_colors = [color for (number, color) in bottom]
-
-    if len(set(top_colors)) == 1 or len(set(left_colors)) == 1 or len(set(front_colors)) == 1 or len(set(right_colors)) == 1 or len(set(back_colors)) == 1 or len(set(bottom_colors)) == 1:
-        return True
-    else:
-        return False
-
-
+    # etape 1 : une face is de la même couleur
+    faces = [state[i:i+4] for i in range(0, len(state), 4)]
+    return any(all_same([color for (number, color) in face]) for face in faces)
 
 
 def etape2(state):
-    # a state is final if all the colors on a face are the same
+    # etape 2 : deux faces opposées sont de la même couleur (ex : top and bottom)
     top = state[:4]
     left = state[4:8]
     front = state[8:12]
@@ -257,11 +245,37 @@ def etape2(state):
     back_colors = [color for (number, color) in back]
     bottom_colors = [color for (number, color) in bottom]
 
-    if (len(set(top_colors)) == 1 and len(set(bottom_colors)) == 1) or (len(set(left_colors)) == 1 and len(set(right_colors)) == 1) or (len(set(front_colors)) == 1 and len(set(back_colors)) == 1):
+    solved_face = any(all_same([color for (number, color) in face]) for face in [
+                        top, left, front, right, back, bottom])
+    solved_color = [color for (number, color) in solved_face]
+
+    # check which face is the solved one : 
+    if solved_face == top :
+        print("Solved : top, opposite : bottom")
+        opposite_face = bottom
+    elif solved_face == left :
+        print("Solved : left, opposite : right")
+        opposite_face = right
+    elif solved_face == front :
+        print("Solved : front, opposite : back")
+        opposite_face = back
+    elif solved_face == right :
+        print("Solved : right, opposite : left")
+        opposite_face = left
+    elif solved_face == back :
+        print("Solved : back, opposite : front")
+        opposite_face = front
+    elif solved_face == bottom :
+        print("Solved : bottom, opposite : top")
+        opposite_face = top
+
+    opposite_color  = [color for (number, color) in opposite_face]
+    # etape2 is when both the solved face and opposite face are solved. Each face is one color, the color of the already solved face should not change
+    # the goal is only to go from one solved face to two opposite solved faces. they cannot be the same color as it's impossible to have two faces of the same color on a cube
+    if (len(set(solved_color)) == 1 and len(set(opposite_color)) == 1 and solved_color != opposite_color):
         return True
     else:
         return False
-
 
 
 def isFinal(state):
@@ -288,17 +302,20 @@ def isFinal(state):
 
 def transformations(state, path=None):
     # all the possible rotations
-    all_moves = [("top", rotate_top(state, 90), 1), ("top*", rotate_top(state, -90), 1), ("top**", rotate_top(state, 180), 1),
-                    ("left", rotate_left(state, 90), 1), ("left*", rotate_left(state, -90), 1), ("left**", rotate_left(state, 180), 1),
-                    ("front", rotate_front(state, 90), 1), ("front*", rotate_front(state, -90), 1), ("front**", rotate_front(state, 180), 1),
-                    ("right", rotate_right(state, 90), 1), ("right*", rotate_right(state, -90), 1), ("right**", rotate_right(state, 180), 1),
-                    ("back", rotate_back(state, 90), 1), ("back*", rotate_back(state, -90), 1), ("back**", rotate_back(state, 180), 1),
-                    ("bottom", rotate_bottom(state, 90), 1), ("bottom*", rotate_bottom(state, -90), 1), ("bottom**", rotate_bottom(state, 180), 1)]
-    
+    all_moves = [("top", rotate_top(state, 90), 1), ("top*", rotate_top(state, -90), 1),
+                 ("left", rotate_left(state, 90),
+                  1), ("left*", rotate_left(state, -90), 1),
+                 ("front", rotate_front(state, 90),
+                  1), ("front*", rotate_front(state, -90), 1),
+                 ("right", rotate_right(state, 90),
+                  1), ("right*", rotate_right(state, -90), 1),
+                 ("back", rotate_back(state, 90),
+                  1), ("back*", rotate_back(state, -90), 1),
+                 ("bottom", rotate_bottom(state, 90), 1), ("bottom*", rotate_bottom(state, -90), 1)]
     last_move = None
     if path is not None and len(path) > 0:
         last_move = path[-1][0]
-    
+
     if last_move is None:
         return all_moves
 
@@ -324,42 +341,43 @@ def transformations(state, path=None):
     return possible_moves
 
 
-def solver2(transformations, isFinal, state, d_max, path=None):
+def solverDL(transformations, isFinal, state, d_max, path=None):
     if path is None:
-        path = []  
+        path = []
 
     if d_max < 0:
-        return None  
+        return None
 
     if isFinal(state):
         return [path, state]
 
     for (description, next_state, cost) in transformations(state, path):
-        next_path = path + [(description,)]  
-        result = solver2(transformations, isFinal, next_state, d_max - 1, next_path)
+        next_path = path + [(description,)]
+        result = solverDL(transformations, isFinal,
+                          next_state, d_max - 1, next_path)
 
-        if result is not None:
-            return result  
-
-    return None  
-
-
-def solverIDS (transformations:  Callable[[State], List[Transition]],
-            etape:          Callable[[State], bool],
-            d_max:            int,
-            initial:          State) -> List[Solution]:
-    for depth in range(1, d_max + 1):
-        result = solver2(transformations, etape, initial, depth)
         if result is not None:
             return result
-        
+
+    return None
+
+
+def solverIDS(transformations:  Callable[[State], List[Transition]],
+              etape:          Callable[[State], bool],
+              d_max:            int,
+              initial:          State) -> List[Solution]:
+    for depth in range(1, d_max + 1):
+        print("depth : ", depth)
+        result = solverDL(transformations, etape, initial, depth)
+        if result is not None:
+            return result
+
 
 def solveWithStep(cube):
     result_etape = solverIDS(transformations, etape2, 8, cube)
 
     print("ok etape 1")
-    
-    
+
     if result_etape is not None:
         cube_after_etape = result_etape[1]
         print(cube_after_etape)
@@ -367,7 +385,7 @@ def solveWithStep(cube):
 
         result_final = solverIDS(transformations, isFinal, 8, cube_after_etape)
         print("ok etape 2")
-        
+
         if result_final is not None:
             return result_final
         else:
@@ -376,11 +394,42 @@ def solveWithStep(cube):
         return None
 
 
-#def solve(cube):
-   # return solver2(transformations, isFinal, cube, 7)
+def solverStep(cube):
+    print("Etape 1 : ")
+    result_etape = solverIDS(transformations, etape, 8, cube)
+
+    if result_etape is not None:
+        cube_after_etape = result_etape[1]
+        print(cube_after_etape)
+        print("Etape 2 : ")
+        result_etape2 = solverIDS(
+            transformations, isFinal, 7, cube_after_etape)
+        if result_etape2 is not None:
+            print("Final : ")
+            cube_after_final = result_etape2[1]
+            resultat_final = solverIDS(
+                transformations, isFinal, 4, cube_after_final)
+            if resultat_final is not None:
+                return resultat_final
+            else:
+                return None
+        else:
+            return None
+    else:
+        return None
+
+
+def solve(cube):
+    return solverDL(transformations, isFinal, cube, 7)
+
 
 def solveIDS(cube):
     return solverIDS(transformations, isFinal, 8, cube)
+
+
+def solveStep(cube):
+    return solverStep(cube)
+
 
 print(cube)
 
@@ -393,4 +442,4 @@ print(random_cube)
 
 # print(solve3(random_cube))
 
-print(solveWithStep(random_cube)[0]) #alors ca marche ! Mais !!!!! ca rend l'algo encore plus lent j'ai perdu 3H de ma vie bordel 
+print(solveStep(random_cube))
