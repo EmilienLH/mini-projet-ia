@@ -1,5 +1,7 @@
 from rotation import *
 
+# all the algorithms to go from solved bottom to both solved bottom and top, following the Ortega method (https://www.francocube.com/ofapel/ortega)
+
 def algo1(state):
     state = rotate_right(state, -90)  # R'
     state = rotate_top(state, -90)    # U'
@@ -81,6 +83,7 @@ def algo7(state):
 
     return state
 
+# all the possible algorithms to go from solved bottom and top to solved cube, following the Ortega method (https://www.francocube.com/ofapel/ortega)
 
 def algo_fin1(state):
     state = rotate_left(state, 90)  # L
@@ -150,3 +153,4 @@ def algo_fin6(state):
     state = rotate_bottom(state, 90)  # D
     state = rotate_left(state, -90)  # L'
     return state
+

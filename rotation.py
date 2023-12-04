@@ -1,4 +1,5 @@
-# rotations : each rotation have a base function and a rotate function
+# rotations : each rotation have a base function and a rotate function 
+# the rotate is just a wrapper for the base function, it allows us to rotate a face with the angle we want (90, -90, 180)
 
 def base_top(cube):
     top = cube[:4]
