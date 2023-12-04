@@ -273,6 +273,7 @@ def algo_fin1(state):
     state = rotate_top(state, 180)  # U2
     state = rotate_right(state, -90)  # R'
     state = rotate_front(state, 90)  # F
+    state = rotate_right(state, 90)  # F
     state = rotate_top(state, 180)  # U2
     state = rotate_right(state, -90)  # R'
     state = rotate_left(state, -90)  # L'
@@ -285,10 +286,12 @@ def algo_fin2(state):
     state = rotate_right(state, 90)  # R
     state = rotate_top(state, -90)  # U'
     state = rotate_right(state, -90)  # R'
+    state = rotate_top(state, 90)  # U
     state = rotate_front(state, 180)  # F2
     state = rotate_top(state, 90)  # U
     state = rotate_right(state, 90)  # R
-    state = rotate_top(state, -90)  # U'
+    state = rotate_top(state, 90)  # U
+    state = rotate_right(state, -90)  # R'
     return state
 
 def algo_fin3(state):
@@ -302,7 +305,7 @@ def algo_fin3(state):
     return state
 
 def algo_fin4(state):
-    state = rotate_right(state, -180)  # R2'
+    state = rotate_right(state, 180)  # R2
     state = rotate_front(state, 180)  # F2
     state = rotate_right(state, 180)  # R2
     return state
@@ -311,11 +314,11 @@ def algo_fin5(state):
     state = rotate_right(state, 180)  # R2
     state = rotate_top(state, -90)  # U'
     state = rotate_right(state, 180)  # R2
-    state = rotate_top(state, 90)  # U
+    state = rotate_top(state, -90)  # U'
     state = rotate_bottom(state, -90)  # D'
     state = rotate_right(state, 180)  # R2
     state = rotate_top(state, -90)  # U'
-    state = rotate_right(state, 180)  # R2'
+    state = rotate_right(state, 180)  # R2
     return state
 
 def algo_fin6(state):
@@ -515,7 +518,7 @@ def solveWithStep(cube):
         print(result_etape[0])
         print("ok etape 1")
 
-        result_etape2 = solverIDS(transformationsAlgo, etape2, 8, cube_after_etape)
+        result_etape2 = solverIDS(transformationsAlgo, etape2, 6, cube_after_etape)
     
         if result_etape2 is not None:
             path_after_etape2 = path_after_etape + result_etape2[0]
@@ -524,7 +527,7 @@ def solveWithStep(cube):
             print(path_after_etape2)
             print("ok etape 2")
 
-            result_final = solverIDS(transformationsAlgoFin, isFinal, 8, cube_after_etape2)
+            result_final = solverIDS(transformationsAlgoFin, isFinal, 6, cube_after_etape2)
             print("ok sa mère")
 
             if result_final is not None:
@@ -554,4 +557,4 @@ print("\n\n")
 
 # print(solve3(random_cube))
 
-print(solveWithStep(random_cube)[0]) #alors ca marche ! Mais !!!!! ca rend l'algo encore plus lent j'ai perdu 3H de ma vie bordel 
+print(solveWithStep(random_cube)[0])
