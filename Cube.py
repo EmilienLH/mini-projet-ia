@@ -193,10 +193,145 @@ def rotate_bottom(cube, angle):
         return base_bottom(base_bottom(base_bottom(cube)))
     elif angle == 180:
         return base_bottom(base_bottom(cube))
+    
+
+def algo1(state):
+   return rotate_right(rotate_top(rotate_right(rotate_top(rotate_right(rotate_top(rotate_right(state, -90), -90),90),-90),-90),180),90)
+ 
+def algo2(state):
+    state = rotate_right(state, -90)  # R'
+    state = rotate_top(state, 180)   # U2
+    state = rotate_right(state, 90)  # R
+    state = rotate_top(state, 90)    # U
+    state = rotate_right(state, -90) # R'
+    state = rotate_top(state, 90)   # U
+    state = rotate_right(state, 90)  # R
+    return state
+
+def algo3(state):
+    state = rotate_front(state, -90)  # F'
+    state = rotate_right(state, 90)   # R
+    state = rotate_top(state, 90) # U
+    state = rotate_right(state, -90)    # R'
+    state = rotate_top(state, -90)  # U'
+    state = rotate_right(state, -90)   # R'
+    state = rotate_front(state, 90)  # F
+    state = rotate_right(state, 90) # R
+
+    return state
+
+def algo4(state):
+    state = rotate_right(state, -90) # R'
+    state = rotate_front(state, -90)  # F'
+    state = rotate_right(state, 90) # R
+    state = rotate_top(state, 90)    # U
+    state = rotate_right(state, 90)  # R
+    state = rotate_top(state, -90)   # U'
+    state = rotate_right(state, -90) # R'
+    state = rotate_front(state, 90)  # F
+
+    return state
+
+
+def algo5(state):
+    state = rotate_front(state, 90)  # F
+    state = rotate_right(state, 90)    # R
+    state = rotate_top(state, 90)  # U
+    state = rotate_right(state, -90) # R'
+    state = rotate_top(state, -90)   # U'
+    state = rotate_front(state, -90) # F'
+
+    return state
+
+def algo6(state):
+    state = rotate_right(state, -90) # R'
+    state = rotate_top(state, 90)   # U
+    state = rotate_right(state, 180) # R2
+    state = rotate_top(state, -90)   # U'
+    state = rotate_right(state, 180) # R2
+    state = rotate_top(state, -90)   # U'
+    state = rotate_right(state, 180) # R2
+    state = rotate_top(state, 90)    # U
+    state = rotate_right(state, -90) # R'
+
+    return state
+
+def algo7(state):
+    state = rotate_right(state, 180)  # R2
+    state = rotate_top(state, 180)    # U2
+    state = rotate_right(state, 90)   # R
+    state = rotate_top(state, 180)    # U2
+    state = rotate_right(state, 180)  # R2
+
+    return state
+
+
+def algo_fin1(state):
+    state = rotate_left(state, 90)  # L
+    state = rotate_top(state, -90)  # U'
+    state = rotate_right(state, 90)  # R
+    state = rotate_top(state, 180)  # U2
+    state = rotate_right(state, -90)  # R'
+    state = rotate_front(state, 90)  # F
+    state = rotate_top(state, 180)  # U2
+    state = rotate_right(state, -90)  # R'
+    state = rotate_left(state, -90)  # L'
+    return state
+
+
+def algo_fin2(state):
+    state = rotate_right(state, 180)  # R2
+    state = rotate_bottom(state, -90)  # D'
+    state = rotate_right(state, 90)  # R
+    state = rotate_top(state, -90)  # U'
+    state = rotate_right(state, -90)  # R'
+    state = rotate_front(state, 180)  # F2
+    state = rotate_top(state, 90)  # U
+    state = rotate_right(state, 90)  # R
+    state = rotate_top(state, -90)  # U'
+    return state
+
+def algo_fin3(state):
+    state = rotate_right(state, 90)  # R
+    state = rotate_top(state, -90)  # U'
+    state = rotate_left(state, 90)  # L
+    state = rotate_top(state, 180)  # U2
+    state = rotate_right(state, -90)  # R'
+    state = rotate_top(state, 90)  # U
+    state = rotate_left(state, -90)  # L'
+    return state
+
+def algo_fin4(state):
+    state = rotate_right(state, -180)  # R2'
+    state = rotate_front(state, 180)  # F2
+    state = rotate_right(state, 180)  # R2
+    return state
+
+def algo_fin5(state):
+    state = rotate_right(state, 180)  # R2
+    state = rotate_top(state, -90)  # U'
+    state = rotate_right(state, 180)  # R2
+    state = rotate_top(state, 90)  # U
+    state = rotate_bottom(state, -90)  # D'
+    state = rotate_right(state, 180)  # R2
+    state = rotate_top(state, -90)  # U'
+    state = rotate_right(state, 180)  # R2'
+    return state
+
+def algo_fin6(state):
+    state = rotate_left(state, 90)  # L
+    state = rotate_bottom(state, -90)  # D'
+    state = rotate_right(state, 90)  # R
+    state = rotate_top(state, 180)  # U2
+    state = rotate_right(state, -90)  # R'
+    state = rotate_bottom(state, 90)  # D
+    state = rotate_left(state, -90)  # L'
+    return state
+
 
 # random rotations :
 
-def random_rotation(cube, n =16) :
+def random_rotation(cube, n =48) :
     rotations = [rotate_top, rotate_left, rotate_front, rotate_right, rotate_back, rotate_bottom]
     angles = [90, -90, 180]
     for i in range(n):
@@ -233,7 +368,7 @@ def etape(state):
     back_colors = [color for (number, color) in back]
     bottom_colors = [color for (number, color) in bottom]
 
-    if len(set(top_colors)) == 1 or len(set(left_colors)) == 1 or len(set(front_colors)) == 1 or len(set(right_colors)) == 1 or len(set(back_colors)) == 1 or len(set(bottom_colors)) == 1:
+    if len(set(bottom_colors)) == 1:
         return True
     else:
         return False
@@ -324,6 +459,19 @@ def transformations(state, path=None):
     return possible_moves
 
 
+def transformationsAlgo(state, path=None):
+    # all the possible rotations
+    return [("algo1", algo1(state), 1), ("algo2", algo2(state), 1), ("algo3", algo3(state), 1),
+            ("algo4", algo4(state), 1), ("algo5", algo5(state), 1), ("algo6", algo6(state), 1),
+            ("algo7", algo7(state), 1)]
+
+def transformationsAlgoFin(state, path=None):
+    # all the possible rotations
+    return [("algo_fin1", algo_fin1(state), 1), ("algo_fin2", algo_fin2(state), 1), ("algo_fin3", algo_fin3(state), 1),
+            ("algo_fin4", algo_fin4(state), 1), ("algo_fin5", algo_fin5(state), 1), ("algo_fin6", algo_fin6(state), 1)]
+
+
+
 def solver2(transformations, isFinal, state, d_max, path=None):
     if path is None:
         path = []  
@@ -353,23 +501,38 @@ def solverIDS (transformations:  Callable[[State], List[Transition]],
         if result is not None:
             return result
         
+        
 
 def solveWithStep(cube):
-    result_etape = solverIDS(transformations, etape2, 8, cube)
-
-    print("ok etape 1")
+    result_etape = solverIDS(transformations, etape, 8, cube)
     
     
     if result_etape is not None:
+        path_after_etape = result_etape[0]
         cube_after_etape = result_etape[1]
-        print(cube_after_etape)
-        print("ok etape 1_2")
 
-        result_final = solverIDS(transformations, isFinal, 8, cube_after_etape)
-        print("ok etape 2")
-        
-        if result_final is not None:
-            return result_final
+        print(cube_after_etape)
+        print(result_etape[0])
+        print("ok etape 1")
+
+        result_etape2 = solverIDS(transformationsAlgo, etape2, 8, cube_after_etape)
+    
+        if result_etape2 is not None:
+            path_after_etape2 = path_after_etape + result_etape2[0]
+            cube_after_etape2 = result_etape2[1]
+            print(cube_after_etape2)
+            print(path_after_etape2)
+            print("ok etape 2")
+
+            result_final = solverIDS(transformationsAlgoFin, isFinal, 8, cube_after_etape2)
+            print("ok sa mère")
+
+            if result_final is not None:
+                result_final[0][0:0] = path_after_etape2
+                print(result_final[1])
+                return result_final
+            else:
+                return None
         else:
             return None
     else:
@@ -385,9 +548,7 @@ def solveIDS(cube):
 print(cube)
 
 random_cube = random_rotation(cube)
-
-print(random_cube)
-
+print("\n\n")
 
 # print(solve(random_cube))
 
