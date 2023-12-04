@@ -197,10 +197,10 @@ def rotate_bottom(cube, angle):
 # random rotations :
 
 
-def random_rotation(cube, n=16):
+def random_rotation(cube, n=7):
     rotations = [rotate_top, rotate_left, rotate_front,
                  rotate_right, rotate_back, rotate_bottom]
-    angles = [90, -90, 180]
+    angles = [90, -90]
     for i in range(n):
         rotation = random.choice(rotations)
         print(rotation)
@@ -223,14 +223,12 @@ def all_same(items):
     return all(x == items[0] for x in items)
 
 
-def etape(state):
-    # etape 1 : une face is de la même couleur
+def find_solved_face(state):
     faces = [state[i:i+4] for i in range(0, len(state), 4)]
-    return any(all_same([color for (number, color) in face]) for face in faces)
+    return next(face for face in faces if all_same([color for (number, color) in face]))
 
 
-def etape2(state):
-    # etape 2 : deux faces opposées sont de la même couleur (ex : top and bottom)
+def find_opposite_face(state, solved_face):
     top = state[:4]
     left = state[4:8]
     front = state[8:12]
@@ -238,47 +236,55 @@ def etape2(state):
     back = state[16:20]
     bottom = state[20:]
 
-    top_colors = [color for (number, color) in top]
-    left_colors = [color for (number, color) in left]
-    front_colors = [color for (number, color) in front]
-    right_colors = [color for (number, color) in right]
-    back_colors = [color for (number, color) in back]
-    bottom_colors = [color for (number, color) in bottom]
+    # check which face is the solved one :
+    if solved_face == top:
+        print("Solved face : top, opposite : bottom")
+        return bottom
+    elif solved_face == left:
+        print("Solved face : left, opposite : right")
+        return right
+    elif solved_face == front:
+        print("Solved face : front, opposite : back")
+        return back
+    elif solved_face == right:
+        print("Solved face : right, opposite : left")
+        return left
+    elif solved_face == back:
+        print("Solved face : back, opposite : front")
+        return front
+    elif solved_face == bottom:
+        print("Solved face : bottom, opposite : top")
+        return top
+    else:
+        print("Error : no solved face")
+        return None
 
-    solved_face = any(all_same([color for (number, color) in face]) for face in [
-                        top, left, front, right, back, bottom])
-    solved_color = [color for (number, color) in solved_face]
 
-    # check which face is the solved one : 
-    if solved_face == top :
-        print("Solved : top, opposite : bottom")
-        opposite_face = bottom
-    elif solved_face == left :
-        print("Solved : left, opposite : right")
-        opposite_face = right
-    elif solved_face == front :
-        print("Solved : front, opposite : back")
-        opposite_face = back
-    elif solved_face == right :
-        print("Solved : right, opposite : left")
-        opposite_face = left
-    elif solved_face == back :
-        print("Solved : back, opposite : front")
-        opposite_face = front
-    elif solved_face == bottom :
-        print("Solved : bottom, opposite : top")
-        opposite_face = top
+def etape(state, solved_face=None, opposite_face=None):
+    # etape 1 : une face is de la même couleur
+    faces = [state[i:i+4] for i in range(0, len(state), 4)]
+    return any(all_same([color for (number, color) in face]) for face in faces)
 
-    opposite_color  = [color for (number, color) in opposite_face]
-    # etape2 is when both the solved face and opposite face are solved. Each face is one color, the color of the already solved face should not change
-    # the goal is only to go from one solved face to two opposite solved faces. they cannot be the same color as it's impossible to have two faces of the same color on a cube
-    if (len(set(solved_color)) == 1 and len(set(opposite_color)) == 1 and solved_color != opposite_color):
-        return True
+
+def etape2(state, solved_face, opposite_face):
+    # etape 2 : deux faces opposées sont de la même couleur (ex : top and bottom)
+    toSolve_face = state[solved_face:solved_face+4]
+    toSolve_opp_face = state[opposite_face:opposite_face+4]
+
+    solved_color = [color for (number, color) in toSolve_face]
+
+    opposite_color = [color for (number, color) in toSolve_opp_face]
+
+    if len(set(solved_color)) == 1:
+        if len(set(opposite_color)) == 1:
+            return True
+        else:
+            return False
     else:
         return False
 
 
-def isFinal(state):
+def isFinal(state, solved_face=None, opposite_face=None):
     # a state is final if all the colors on a face are the same
     top = state[:4]
     left = state[4:8]
@@ -302,26 +308,27 @@ def isFinal(state):
 
 def transformations(state, path=None):
     # all the possible rotations
-    all_moves = [("top", rotate_top(state, 90), 1), ("top*", rotate_top(state, -90), 1),
-                 ("left", rotate_left(state, 90),
-                  1), ("left*", rotate_left(state, -90), 1),
-                 ("front", rotate_front(state, 90),
-                  1), ("front*", rotate_front(state, -90), 1),
-                 ("right", rotate_right(state, 90),
-                  1), ("right*", rotate_right(state, -90), 1),
-                 ("back", rotate_back(state, 90),
-                  1), ("back*", rotate_back(state, -90), 1),
-                 ("bottom", rotate_bottom(state, 90), 1), ("bottom*", rotate_bottom(state, -90), 1)]
+    all_moves = [("top", rotate_top(state, 90), 1), ("top*", rotate_top(state, -90), 1), ("top**", rotate_top(state, 180), 1),
+                 ("left", rotate_left(state, 90), 1), ("left*", rotate_left(state, -90), 1), ("left**", rotate_left(state, 180), 1),
+                 ("front", rotate_front(state, 90), 1), ("front*", rotate_front(state, -90), 1), ("front**", rotate_front(state, 180), 1),
+                 ("right", rotate_right(state, 90), 1), ("right*", rotate_right(state, -90), 1), ("right**", rotate_right(state, 180), 1),
+                 ("back", rotate_back(state, 90), 1), ("back*", rotate_back(state, -90), 1), ("back**", rotate_back(state, 180), 1),
+                 ("bottom", rotate_bottom(state, 90), 1), ("bottom*", rotate_bottom(state, -90), 1), ("bottom**", rotate_bottom(state, 180), 1)]
+    
+    # Get the last move made in the path
     last_move = None
     if path is not None and len(path) > 0:
         last_move = path[-1][0]
 
+    # If there is no last move, all moves are possible
     if last_move is None:
         return all_moves
 
+    # Get the direction and the number of stars of the last move
     last_dir = last_move.split("*")[0]
     last_stars = len(last_move.split("*")) - 1
 
+    # Then filter the possible moves based on the last move
     possible_moves = []
     for move in all_moves:
         dir = move[0].split("*")[0]
@@ -335,26 +342,30 @@ def transformations(state, path=None):
         # Check if the move is the same as the last move : useless, might as well do move** instead
         if dir == last_dir and stars == last_stars:
             continue
+
+        # Check if the dir is the same as the last dir : optimisation test
+        if dir == last_dir : 
+            continue
         # If the move is not useless, add it to the list of possible moves
         possible_moves.append(move)
 
     return possible_moves
 
 
-def solverDL(transformations, isFinal, state, d_max, path=None):
+def solverDL(transformations, isFinal, state, d_max, path=None, solved_face=None, opposite_face=None):
     if path is None:
         path = []
 
     if d_max < 0:
         return None
 
-    if isFinal(state):
+    if isFinal(state, solved_face, opposite_face):
         return [path, state]
 
     for (description, next_state, cost) in transformations(state, path):
         next_path = path + [(description,)]
         result = solverDL(transformations, isFinal,
-                          next_state, d_max - 1, next_path)
+                          next_state, d_max - 1, next_path, solved_face, opposite_face)
 
         if result is not None:
             return result
@@ -365,33 +376,15 @@ def solverDL(transformations, isFinal, state, d_max, path=None):
 def solverIDS(transformations:  Callable[[State], List[Transition]],
               etape:          Callable[[State], bool],
               d_max:            int,
-              initial:          State) -> List[Solution]:
+              initial:          State,
+              solved_face=None,
+              opposite_face=None) -> List[Solution]:
     for depth in range(1, d_max + 1):
         print("depth : ", depth)
-        result = solverDL(transformations, etape, initial, depth)
+        result = solverDL(transformations, etape, initial, depth,
+                          solved_face=solved_face, opposite_face=opposite_face)
         if result is not None:
             return result
-
-
-def solveWithStep(cube):
-    result_etape = solverIDS(transformations, etape2, 8, cube)
-
-    print("ok etape 1")
-
-    if result_etape is not None:
-        cube_after_etape = result_etape[1]
-        print(cube_after_etape)
-        print("ok etape 1_2")
-
-        result_final = solverIDS(transformations, isFinal, 8, cube_after_etape)
-        print("ok etape 2")
-
-        if result_final is not None:
-            return result_final
-        else:
-            return None
-    else:
-        return None
 
 
 def solverStep(cube):
@@ -400,16 +393,31 @@ def solverStep(cube):
 
     if result_etape is not None:
         cube_after_etape = result_etape[1]
+        path_after_etape = result_etape[0]
+        # add all path to the final path
+        final_path = [path for (path,) in path_after_etape]
         print(cube_after_etape)
         print("Etape 2 : ")
+        solved_face = find_solved_face(cube_after_etape)
+        opposite_face = find_opposite_face(cube_after_etape, solved_face)
+        solved_face_index = cube_after_etape.index(solved_face[0])
+        opposite_face_index = cube_after_etape.index(opposite_face[0])
+        print("Solved face index : ", solved_face_index)
+        print("Opposite face index : ", opposite_face_index)
+        print("Solved face : ", solved_face)
+        print("Opposite face : ", opposite_face)
         result_etape2 = solverIDS(
-            transformations, isFinal, 7, cube_after_etape)
+            transformations, etape2, 8, cube_after_etape, solved_face_index, opposite_face_index)
         if result_etape2 is not None:
             print("Final : ")
             cube_after_final = result_etape2[1]
+            path_after_final = result_etape2[0]
+            final_path += [path for (path,) in path_after_final]
             resultat_final = solverIDS(
-                transformations, isFinal, 4, cube_after_final)
+                transformations, isFinal, 10, cube_after_final)
             if resultat_final is not None:
+                final_path += [path for (path,) in resultat_final[0]]
+                resultat_final[0] = final_path
                 return resultat_final
             else:
                 return None
@@ -437,9 +445,8 @@ random_cube = random_rotation(cube)
 
 print(random_cube)
 
-
 # print(solve(random_cube))
 
-# print(solve3(random_cube))
+# print(solveIDS(random_cube))
 
 print(solveStep(random_cube))
